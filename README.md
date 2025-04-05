@@ -1,0 +1,1 @@
+Vault Folder index creator for Obsidian
