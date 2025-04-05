@@ -1,7 +1,7 @@
 {
 	"name": "Indexify",
-	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"version": "0.1.0",
+	"description": "Index/graph creator for obsidian",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
