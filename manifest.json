@@ -3,8 +3,8 @@
 	"name": "Indexify",
 	"version": "0.1.0",
 	"minAppVersion": "0.15.0",
-	"description": "Creates Dynamic Index files for folder and subfolder contents.",
+	"description": "Your Obsidian Vault's Visual Navigator",
 	"author": "AmetsMarti",
-	"authorUrl": "https://github.AmetsMarti.com",
+	"authorUrl": "https://github.com/AmetsMarti"
 	"isDesktopOnly": false
 }
