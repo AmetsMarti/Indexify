@@ -5,6 +5,6 @@
 	"minAppVersion": "0.15.0",
 	"description": "Your Obsidian Vault's Visual Navigator",
 	"author": "AmetsMarti",
-	"authorUrl": "https://github.com/AmetsMarti"
+	"authorUrl": "https://github.com/AmetsMarti",
 	"isDesktopOnly": false
 }]
