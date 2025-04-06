@@ -10,17 +10,41 @@ const DEFAULT_SETTINGS: IndexifySettings = {
 	mySetting: 'default'
 }
 
+
 export default class Indexify extends Plugin {
 	settings: IndexifySettings;
+	indexes = false;
+
 
 	async onload() {
 		await this.loadSettings();
 		console.log('loading indexify plugin...');
 		this.updateIndexes(this.app.vault);
+
+		this.addRibbonIcon('dice', 'Toggle Indexing', (evt: MouseEvent) => {
+			
+			if(this.indexes == false){
+				this.updateIndexes(this.app.vault);
+				new Notice('Indexes enabled');
+				this.indexes = true
+			}
+			else{
+				new Notice('Indexes disabled');
+				this.deleteIndexes(this.app.vault.getRoot());
+				this.indexes = false
+			}
+				
+		});
+		
+
+		
 	}
 
 	onunload() {
 		console.log('unloading indexify plugin...');
+		console.log('deleting all files...');
+		this.deleteIndexes(this.app.vault.getRoot());
+
 	}
 
 	async loadSettings() {
@@ -101,27 +125,32 @@ export default class Indexify extends Plugin {
 			console.log(`File ${indexFilePath} not found`)
 		}
 	}
+
+
+	async deleteIndexes(mainFolder:TFolder){
+		for(var file of this.app.vault.getFiles()){
+			if(file.name.includes("_index.md")){
+				this.app.vault.delete(file);
+			}
+		}
+	}
 }
 
 async function addIndexToFile(indexFile: TFile, childIndex:any[],childFolderIndex:any[], vault: Vault){
 	const indexContent = await vault.read(indexFile);
-	const lines = indexContent.split("\n");
+	const existingLinks = indexContent.split("\n");
 	
 	for(var index of childIndex){
-		let print = true;
-		for(var line of lines){
-			if(line == "[["+ index+"]]"){print = false;}
-		}	
-		if(print == true){await vault.append(indexFile,"[["+ index +"]]\n");}
-
+		const link = "[["+ index+"]]";
+		if (!existingLinks.includes(link)) {
+			await vault.append(indexFile, link + "\n");
+		}
 	}	
 	for(var index of childFolderIndex){
-		let print = true;
-		for(var line of lines){
-			if(line == "![["+ index+"_index.md]]"){print = false;}
-		}	
-		if(print == true){await vault.append(indexFile,"![["+ index +"_index.md]]\n");}
-
+		const folderLink = "![["+ index+"_index.md]]";
+		if (!existingLinks.includes(folderLink)) {
+			await vault.append(indexFile, folderLink + "\n");
+		}
 	}	
 }
 
