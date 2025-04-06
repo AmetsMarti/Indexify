@@ -2,6 +2,10 @@
 
 Indexify is an Obsidian plugin designed to create visual indexes of your vault's folder structure. It generates a network of interconnected notes, forming a tree-like graph that mirrors your folder hierarchy. This allows you to navigate your vault in graph view, providing a clear overview of your notes and their organization.
 
+
+ :hourglass: In Development :hourglass:
+
+
 ![image](/resources/Indexify_example_image.png)
 
 See it in action:
