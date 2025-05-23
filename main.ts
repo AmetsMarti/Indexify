@@ -184,16 +184,28 @@ export default class Indexify extends Plugin {
 	async handleCreateFile(file: TAbstractFile) {
 		const parentFolder = file.parent;
 		if (parentFolder && !this.isUpdatingIndexes) {
-			const indexFile = await this.app.vault.getFileByPath(
-				parentFolder.path + "_index.md",
-			);
-			if (indexFile && indexFile instanceof TFile) {
-				await addIndexToFile(
-					indexFile,
-					[TFile.name],
-					[],
-					this.app.vault,
-				);
+			try {
+				const indexFilePath = `${parentFolder.path}/${parentFolder.name}_index.md`;
+				console.log("Retrieving Index file from path: " + indexFilePath);
+				const indexFile = await this.app.vault.getFileByPath(indexFilePath);
+				try {
+					if (indexFile != null) {
+						console.log("Adding index for " + file.name + " in " + indexFile.name);
+						await addIndexToFile(
+							indexFile,
+							[file.name],
+							[],
+							this.app.vault,
+						);
+					} else {
+						throw new Error("Index file not found for " + file.name);
+					}
+				} catch(error) {
+					console.log("ERROR: IndexFile was null when adding");
+				}
+			} catch(error) {
+				console.log("ERROR: IndexFile was not found when adding - Restart the Indexes");
+				return;
 			}
 		}
 	}
@@ -201,7 +213,7 @@ export default class Indexify extends Plugin {
 	async handleDeleteFile(file: TAbstractFile) {
 		const parentFolderPath = getParentFolderFromPath(file.path);
 		const parentFolder = this.app.vault.getFolderByPath(parentFolderPath);
-		
+
 		console.log("Parent folder: " + parentFolder.path);
 		console.log("handling deletion of " + file.name);
 		if (parentFolder && !this.isUpdatingIndexes) {
@@ -253,14 +265,15 @@ function getParentFolderFromPath(filePath: string): string | null {
 async function addIndexToFile(
 	indexFile: TFile,
 	childIndex: any[],
-	childFolderIndex: any[],
+	childFolderIndex: any[] ,
 	vault: Vault,
 ) {
 	const indexContent = await vault.read(indexFile);
 	const existingLinks = indexContent.split("\n");
 
 	for (const index of childIndex) {
-		const link = "[[" + index + "]]";
+		const linkName = index.slice(0,-3)
+		const link = "[[" + linkName + "]]";
 		if (!existingLinks.includes(link)) {
 			await vault.append(indexFile, link + "\n");
 		}
@@ -292,10 +305,10 @@ async function removeIndexFromFile(file : TAbstractFile, indexFile: TFile,vault:
 	const existingLinks = indexContent.split("\n");
 	let link = "";
 	if(file instanceof TFile){
-		let link = "[[" + file.name + "]]";
+		link = "[[" + file.name.slice(0,-3) + "]]";  // Fixed: removed 'let' keyword
 	}
 	else if(file instanceof TFolder){
-		let link = "[[" + file.name +"_index.md]]";
+		link = "[[" + file.name +"_index.md]]";  // Fixed: removed 'let' keyword
 	}
 	//remove the link from the index file
 	if(file && indexFile){
