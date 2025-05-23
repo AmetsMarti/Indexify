@@ -59,7 +59,7 @@ export default class Indexify extends Plugin {
 			this.app.vault.on("create", (file) => {
 				if (this.indexes) {
 					console.log(`File created: ${file.path}`);
-					this.updateIndexes(this.app.vault);
+					this.handleCreateFile(file);
 				}
 			}),
 		);
@@ -69,7 +69,7 @@ export default class Indexify extends Plugin {
 			this.app.vault.on("delete", (file) => {
 				if (this.indexes) {
 					console.log(`File deleted: ${file.path}`);
-					this.updateIndexes(this.app.vault);
+					this.handleDeleteFile(file);
 				}
 			}),
 		);
@@ -142,7 +142,7 @@ export default class Indexify extends Plugin {
 					continue;
 				}
 				childIndex.push(child.name);
-				console.log(child.name);
+				//console.log(child.name);
 			} else if (child instanceof TFolder) {
 				childFolderIndex.push(child.name);
 				await this.updateFolderIndex(child, mainFolder);
@@ -158,12 +158,12 @@ export default class Indexify extends Plugin {
 					childFolderIndex,
 					this.app.vault,
 				);
-				console.log(
-					"Index file path of " +
-						folder.name +
-						" folder: " +
-						indexFilePath,
-				);
+				//console.log(
+				// 	"Index file path of " +
+				// 		folder.name +
+				// 		" folder: " +
+				// 		indexFilePath,
+				// );
 			} catch (error) {
 				console.error(`Error reading file '${indexFile.path}':`, error);
 			}
@@ -181,11 +181,11 @@ export default class Indexify extends Plugin {
 	}
 
 	//when creating a new file, adds its respective index to the parent folder's index file
-	async handleCreateFile(file: TFile) {
+	async handleCreateFile(file: TAbstractFile) {
 		const parentFolder = file.parent;
-		if (parentFolder) {
+		if (parentFolder && !this.isUpdatingIndexes) {
 			const indexFile = await this.app.vault.getFileByPath(
-				parentFolder.path + "/_index.md",
+				parentFolder.path + "_index.md",
 			);
 			if (indexFile && indexFile instanceof TFile) {
 				await addIndexToFile(
@@ -197,7 +197,59 @@ export default class Indexify extends Plugin {
 			}
 		}
 	}
+
+	async handleDeleteFile(file: TAbstractFile) {
+		const parentFolderPath = getParentFolderFromPath(file.path);
+		const parentFolder = this.app.vault.getFolderByPath(parentFolderPath);
+		
+		console.log("Parent folder: " + parentFolder.path);
+		console.log("handling deletion of " + file.name);
+		if (parentFolder && !this.isUpdatingIndexes) {
+			try{
+				const indexFilePath = `${parentFolder.path}/${parentFolder.name}_index.md`;
+				console.log("Retrieving Index file from path: " + indexFilePath);
+				const indexFile = await this.app.vault.getFileByPath(indexFilePath);
+				try{
+					if (indexFile != null)  {
+						console.log("Removing index for " + file.name +" in " + indexFile.name);
+						await removeIndexFromFile(file, indexFile, this.app.vault);
+					}
+					else{
+						throw new Error("Index file not found for " + file.name);
+					}
+				} catch(error){
+					console.log("ERROR: IndexFile was null when removing");
+				}
+					
+			} catch(error){
+				console.log("ERROR: IndexFile was not found when removing - Restart the Indexes");
+				return;
+			}
+		}
+	}
 }
+/**
+ * Having the path of a file or folder, return the path of its parent folder
+ * @param filePath 
+ *
+ * @returns the path of his parent folder
+ */
+function getParentFolderFromPath(filePath: string): string | null {
+		const lastSlashIndex = filePath.lastIndexOf('/');
+		if (lastSlashIndex === -1) {
+			return null; // The file is in root
+		}
+		 return filePath.substring(0, lastSlashIndex);
+}
+/**
+ * This function adds an index given an index file and links to other files, if some link is not found it will throw an error
+ * 
+ * @param indexFile 
+ * @param childIndex 
+ * @param childFolderIndex 
+ * @param vault 
+ */
+
 async function addIndexToFile(
 	indexFile: TFile,
 	childIndex: any[],
@@ -220,6 +272,39 @@ async function addIndexToFile(
 		}
 	}
 }
+
+/**
+ * Removes a link to a file from an index file.
+ * 
+ * This function checks if the index file contains a link to the specified file
+ * and removes it if found. It handles both regular files and folders differently,
+ * generating the appropriate link format for each type.
+ * 
+ * @param file - The file or folder to be removed from the index
+ * @param indexFile - The index file from which to remove the link
+ * @param vault - The Obsidian vault containing the files
+ * @returns A Promise that resolves when the operation is complete
+ * 
+ * @throws Will throw an error if reading or modifying the vault files fails
+ */
+async function removeIndexFromFile(file : TAbstractFile, indexFile: TFile,vault: Vault){
+	const indexContent = await vault.read(indexFile);
+	const existingLinks = indexContent.split("\n");
+	let link = "";
+	if(file instanceof TFile){
+		let link = "[[" + file.name + "]]";
+	}
+	else if(file instanceof TFolder){
+		let link = "[[" + file.name +"_index.md]]";
+	}
+	//remove the link from the index file
+	if(file && indexFile){
+		if(existingLinks.includes(link)){
+			const newContent = existingLinks.filter(line => line !== link).join('\n');
+			await vault.modify(indexFile, newContent);
+		}
+	}
+} 
 
 class SampleModal extends Modal {
 	constructor(app: App) {
