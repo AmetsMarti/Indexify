@@ -215,7 +215,6 @@ export default class Indexify extends Plugin {
 		const parentFolder = this.app.vault.getFolderByPath(parentFolderPath);
 
 		console.log("Parent folder: " + parentFolder.path);
-		console.log("handling deletion of " + file.name);
 		if (parentFolder && !this.isUpdatingIndexes) {
 			try{
 				const indexFilePath = `${parentFolder.path}/${parentFolder.name}_index.md`;
@@ -272,14 +271,17 @@ async function addIndexToFile(
 	const existingLinks = indexContent.split("\n");
 
 	for (const index of childIndex) {
-		const linkName = index.slice(0,-3)
-		const link = "[[" + linkName + "]]";
-		if (!existingLinks.includes(link)) {
+		const baseName = index.endsWith('.md') ? index.slice(0,-3) : index;
+		const link = "[[" + baseName + "]]";
+		// Check both possible formats to avoid duplicates
+        const linkWithExt = "[[" + baseName + ".md]]";
+
+		if (!existingLinks.includes(link) && !existingLinks.includes(linkWithExt)) {
 			await vault.append(indexFile, link + "\n");
 		}
 	}
 	for (const index of childFolderIndex) {
-		const folderLink = "![[" + index + "_index.md]]";
+		const folderLink = "![[" + index + "_index]]";
 		if (!existingLinks.includes(folderLink)) {
 			await vault.append(indexFile, folderLink + "\n");
 		}
@@ -303,19 +305,33 @@ async function addIndexToFile(
 async function removeIndexFromFile(file : TAbstractFile, indexFile: TFile,vault: Vault){
 	const indexContent = await vault.read(indexFile);
 	const existingLinks = indexContent.split("\n");
-	let link = "";
+	let links = [];
 	if(file instanceof TFile){
-		link = "[[" + file.name.slice(0,-3) + "]]";  // Fixed: removed 'let' keyword
+		const baseName = file.name.endsWith('.md') ? file.name.slice(0,-3) : file.name;
+
+		//Remove all posibilities
+		links.push("[[Untitled]]");
+		links.push( "[[" + baseName + "]]");
+		links.push( "[[" + baseName + ".md]]");
 	}
-	else if(file instanceof TFolder){
-		link = "[[" + file.name +"_index.md]]";  // Fixed: removed 'let' keyword
+	else if (file instanceof TFolder){
+		links.push("![[" + file.name +"_index]]");  
 	}
+
 	//remove the link from the index file
 	if(file && indexFile){
-		if(existingLinks.includes(link)){
-			const newContent = existingLinks.filter(line => line !== link).join('\n');
-			await vault.modify(indexFile, newContent);
-		}
+		let newContent = existingLinks.filter(line => {
+            // Keep the line if it doesn't match any of the links to remove
+            return !links.some(link => line.trim() === link);
+        });
+        
+		
+		// Print comparison between original and new content
+		console.log("Original links:", existingLinks);
+		console.log("After removal:", newContent);
+		console.log("Links to remove:", links);
+		await vault.modify(indexFile, newContent.join('\n'));
+	
 	}
 } 
 
