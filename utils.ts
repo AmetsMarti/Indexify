@@ -67,7 +67,7 @@ async function addIndexToFile(
 async function removeIndexFromFile(file : TAbstractFile, indexFile: TFile,vault: Vault){
 	const indexContent = await vault.read(indexFile);
 	const existingLinks = indexContent.split("\n");
-	let links = [];
+	let links: string[] = [];
 	if(file instanceof TFile){
 		const baseName = file.name.endsWith('.md') ? file.name.slice(0,-3) : file.name;
 
@@ -87,11 +87,9 @@ async function removeIndexFromFile(file : TAbstractFile, indexFile: TFile,vault:
             return !links.some(link => line.trim() === link);
         });
         
-		console.log("Original links:", existingLinks);
-		console.log("After removal:", newContent);
-		console.log("Links to remove:", links);
-	const content = newContent.join('\n');
-	await vault.modify(indexFile, content.endsWith('\n') || indexContent.endsWith('\n') ? content + '\n' : content);
-
+		const content = newContent.join('\n');
+		await vault.modify(indexFile, content.endsWith('\n') || indexContent.endsWith('\n') ? content + '\n' : content);
+	}
+}
 
 export {removeIndexFromFile, addIndexToFile, getParentFolderFromPath}

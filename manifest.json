@@ -1,7 +1,7 @@
 {
 	"id": "indexify",
 	"name": "Indexify",
-	"version": "0.1.0",
+	"version": "v0.1.1",
 	"minAppVersion": "0.15.0",
 	"description": "Your Obsidian Vault's Visual Navigator",
 	"author": "AmetsMarti",

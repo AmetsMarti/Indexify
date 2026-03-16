@@ -31,7 +31,6 @@ export default class Indexify extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-		console.log("loading indexify plugin...");
 		this.updateIndexes(this.app.vault);
 		this.attachFileListeners();
 
@@ -49,8 +48,6 @@ export default class Indexify extends Plugin {
 	}
 
 	onunload() {
-		console.log("unloading indexify plugin...");
-		console.log("deleting all files...");
 		this.deleteIndexes(this.app.vault.getRoot());
 	}
 
@@ -59,7 +56,6 @@ export default class Indexify extends Plugin {
 		this.registerEvent(
 			this.app.vault.on("create", (file) => {
 				if (this.indexes) {
-					console.log(`File created: ${file.path}`);
 					this.handleCreateFile(file);
 				}
 			}),
@@ -69,7 +65,6 @@ export default class Indexify extends Plugin {
 		this.registerEvent(
 			this.app.vault.on("delete", (file) => {
 				if (this.indexes) {
-					console.log(`File deleted: ${file.path}`);
 					this.handleDeleteFile(file);
 				}
 			}),
@@ -79,7 +74,6 @@ export default class Indexify extends Plugin {
 		this.registerEvent(
 			this.app.vault.on("rename", (file, oldPath) => {
 				if (this.indexes) {
-					console.log(`File renamed from ${oldPath} to ${file.path}`);
 					this.updateIndexes(this.app.vault);
 				}
 			}),
@@ -109,8 +103,6 @@ export default class Indexify extends Plugin {
 	async updateIndexes(vault: Vault) {
 		this.isUpdatingIndexes = true;
 		const mainFolder = vault.getRoot();
-		console.log("starting from: " + mainFolder.name);
-		//this.printFolderTree(vault,mainFolder);
 		if (mainFolder != null) {
 			this.updateFolderIndex(mainFolder, mainFolder);
 		}
@@ -159,17 +151,11 @@ export default class Indexify extends Plugin {
 					childFolderIndex,
 					this.app.vault,
 				);
-				//console.log(
-				// 	"Index file path of " +
-				// 		folder.name +
-				// 		" folder: " +
-				// 		indexFilePath,
-				// );
 			} catch (error) {
 				console.error(`Error reading file '${indexFile.path}':`, error);
 			}
 		} else {
-			console.log(`File ${indexFilePath} not found`);
+			console.error(`Index file ${indexFilePath} not found`);
 		}
 	}
 
@@ -187,7 +173,7 @@ export default class Indexify extends Plugin {
 		if (parentFolder && !this.isUpdatingIndexes) {
 			try {
 				const indexFilePath = `${parentFolder.path}/${parentFolder.name}_index.md`;
-				console.log("Retrieving Index file from path: " + indexFilePath);
+
 				const indexFile = await this.app.vault.getFileByPath(indexFilePath);
 				try {
 					if (indexFile != null) {
@@ -213,6 +199,10 @@ export default class Indexify extends Plugin {
 
 	async handleDeleteFile(file: TAbstractFile) {
 		const parentFolderPath = getParentFolderFromPath(file.path);
+		if (!parentFolderPath) {
+			console.error("ERROR: Could not determine parent folder for " + file.path);
+			return;
+		}
 		const parentFolder = this.app.vault.getFolderByPath(parentFolderPath);
 
 		if (!parentFolder) {
@@ -223,11 +213,9 @@ export default class Indexify extends Plugin {
 		if (parentFolder && !this.isUpdatingIndexes) {
 			try{
 				const indexFilePath = `${parentFolder.path}/${parentFolder.name}_index.md`;
-				console.log("Retrieving Index file from path: " + indexFilePath);
-				const indexFile = await this.app.vault.getFileByPath(indexFilePath);
-				try{
-					if (indexFile != null)  {
-						console.log("Removing index for " + file.name +" in " + indexFile.name);
+			const indexFile = await this.app.vault.getFileByPath(indexFilePath);
+			try{
+				if (indexFile != null)  {
 						await removeIndexFromFile(file, indexFile, this.app.vault);
 					}
 					else{
