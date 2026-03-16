@@ -1,0 +1,18 @@
+<svg width="500" height="500" xmlns="http://www.w3.org/2000/svg">
+
+ <g>
+  <title>Layer 1</title>
+  <ellipse id="svg_1" stroke=" rgb(77, 77, 76)" fill=" rgb(77, 76, 77)" ry="46.839" rx="46.839" cy="121.908" cx="250.001"/>
+  <ellipse id="svg_2" stroke=" rgb(76, 77, 77)" fill=" rgb(76, 77, 77)" fill-rule=" nonzero" ry="46.839" rx="46.839" cy="185.782" cx="361.046"/>
+  <ellipse id="svg_3" stroke=" rgb(77, 77, 76)" fill=" rgb(77, 77, 76)" ry="46.839" rx="46.839" cy="313.713" cx="361.207"/>
+  <path id="svg_4" d="m248.782,424.609c-25.8779,0 -46.839,-20.9611 -46.839,-46.839c0,-25.8779 20.9611,-46.839 46.839,-46.839c25.8779,0 46.839,20.9611 46.839,46.839c0,25.8779 -20.9611,46.839 -46.839,46.839z" opacity="undefined" stroke-linecap="undefined" stroke-linejoin="undefined" stroke=" rgb(76, 76, 76)" fill=" rgb(77, 77, 76)"/>
+  <ellipse id="svg_5" stroke=" rgb(76, 76, 76)" fill=" rgb(77, 77, 76)" ry="46.839" rx="46.839" cy="313.805" cx="138.46"/>
+  <ellipse id="svg_6" stroke=" rgb(69, 69, 69)" fill=" rgb(77, 77, 76)" ry="46.839" rx="46.839" cy="185.219" cx="138.586"/>
+  <line stroke="#000" stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_7" y2="316.76476" x2="363.82356" y1="184.70569" x1="138.23513" fill="none"/>
+  <line stroke-width="10" stroke=" rgb(76, 76, 76)" stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_8" y2="316.76476" x2="363.82356" y1="184.70569" x1="138.23513" fill=" rgb(77, 77, 76)"/>
+  <line stroke-width="10" stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_9" y2="181.17628" x2="361.76444" y1="315.29387" x1="137.05866" stroke=" rgb(76, 76, 76)" fill="none"/>
+  <line stroke-width="10" stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_10" y2="372.35267" x2="247.05861" y1="121.76455" x1="251.17625" stroke=" rgb(76, 76, 76)" fill="none"/>
+  <line stroke-linecap="undefined" stroke-linejoin="undefined" id="svg_11" y2="408.82325" x2="593.52905" y1="408.23501" x1="593.52905" stroke=" rgb(76, 76, 76)" fill="none"/>
+  <ellipse ry="15.88235" rx="15.88235" id="svg_12" cy="249.41155" cx="248.82332" stroke-width="10" stroke=" rgb(76, 76, 76)" fill=" rgb(77, 77, 76)"/>
+ </g>
+</svg>
