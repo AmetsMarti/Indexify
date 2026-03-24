@@ -3,7 +3,7 @@
 	"name": "Indexify",
 	"version": "0.1.1",
 	"minAppVersion": "0.15.0",
-	"description": "Your Vault's Visual Navigator",
+	"description": "Your Vault's Visual Navigator.",
 	"author": "AmetsMarti",
 	"authorUrl": "https://github.com/AmetsMarti",
 	"isDesktopOnly": false
